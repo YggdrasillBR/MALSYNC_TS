@@ -1,7 +1,7 @@
 import globals from 'globals';
 import { useConfig } from './config/eslint/eslint.mjs';
 
-/** @type {import('eslint').Linter.FlatConfig[]} */
+/** @type {import('eslint').Linter.Config[]} */
 export default [
   {
     ignores: [
