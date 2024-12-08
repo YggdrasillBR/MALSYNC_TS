@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@babel/core": "^7.26.0",
+    "mkdirp": "^3.0.1",
     "typescript": "^5.7.2"
   }
 }
