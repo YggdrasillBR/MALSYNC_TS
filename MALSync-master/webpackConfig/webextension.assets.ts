@@ -1,31 +1,31 @@
-const path = require('path');
-const extra = require('fs-extra');
-const fs = require('fs');
-const mkdirp = require('mkdirp');
-const download = require('download-file');
-const playerUrls = require('../src/pages/playerUrls');
-const pageUrls = require('./utils/pageUrls');
-const packageJson = require('../package.json');
-const resourcesJson = require('./resources');
-const httpPermissionsJson = require('./httpPermissions.json');
-const i18n = require('./utils/i18n');
-const pagesUtils = require('./utils/pages');
-const pages = pagesUtils.pages();
-const generateMatchExcludes = pagesUtils.generateMatchExcludes;
+import { join } from 'path';
+import { copy } from 'fs-extra';
+import { writeFile } from 'fs';
+import mkdirp from 'mkdirp';
+import download from 'download-file';
+import playerUrls from '../src/pages/playerUrls';
+import pageUrls, { myanimelist as _myanimelist, anilist as _anilist, kitsu, simkl, malsync, malsyncAnilist, malsyncShiki, malsyncPwa } from './utils/pageUrls';
+import { productName, version as _version, author as _author } from '../package.json';
+import resourcesJson from './resources';
+import httpPermissionsJson from './httpPermissions.json';
+import i18n from './utils/i18n';
+import { pages as _pages, generateMatchExcludes as _generateMatchExcludes, urls as _urls } from './utils/pages';
+const pages = _pages();
+const generateMatchExcludes = _generateMatchExcludes;
 
 const mode = process.env.CI_MODE || 'default';
 const appTarget = process.env.APP_TARGET || 'general';
 console.log('Mode', mode);
 console.log('appTarget', appTarget);
 
-const malUrls = { myanimelist: pageUrls.myanimelist };
-const aniUrls = { anilist: pageUrls.anilist };
-const kitsuUrls = { anilist: pageUrls.kitsu };
-const simklUrls = { anilist: pageUrls.simkl };
-const malsyncUrls = { anilist: pageUrls.malsync };
-const malsyncAnilistUrls = { anilist: pageUrls.malsyncAnilist };
-const malsyncShikiUrls = { shiki: pageUrls.malsyncShiki };
-const malsyncPwaUrls = { anilist: pageUrls.malsyncPwa };
+const malUrls = { myanimelist: _myanimelist };
+const aniUrls = { anilist: _anilist };
+const kitsuUrls = { anilist: kitsu };
+const simklUrls = { anilist: simkl };
+const malsyncUrls = { anilist: malsync };
+const malsyncAnilistUrls = { anilist: malsyncAnilist };
+const malsyncShikiUrls = { shiki: malsyncShiki };
+const malsyncPwaUrls = { anilist: malsyncPwa };
 
 const contentUrls = pageUrls;
 delete contentUrls.anilist;
@@ -87,7 +87,7 @@ var content_scripts = [
 ];
 
 pages.forEach(el => {
-  const cUrls = pagesUtils.urls(el);
+  const cUrls = _urls(el);
   if (!cUrls.match.length) {
     console.error(`${el} has no urls`);
     return;
@@ -110,10 +110,10 @@ content_scripts.push({
 const generateManifest = () => {
   const mani = {
     manifest_version: 3,
-    name: packageJson.productName,
-    version: packageJson.version,
+    name: productName,
+    version: _version,
     description: '__MSG_Package_Description__',
-    author: packageJson.author,
+    author: _author,
     default_locale: 'en',
     browser_specific_settings: {
       gecko: {
@@ -196,9 +196,9 @@ const generateManifest = () => {
 
   return JSON.stringify(mani, null, 2);
 };
-mkdirp(path.join(__dirname, '../dist/webextension')).then(err => {
-  fs.writeFile(
-    path.join(__dirname, '../dist/webextension/manifest.json'),
+mkdirp(join(__dirname, '../dist/webextension')).then(err => {
+  writeFile(
+    join(__dirname, '../dist/webextension/manifest.json'),
     generateManifest(),
     err => {
       if (err) {
@@ -208,8 +208,8 @@ mkdirp(path.join(__dirname, '../dist/webextension')).then(err => {
     },
   );
 
-  fs.writeFile(
-    path.join(__dirname, '../dist/webextension/i18n.js'),
+  writeFile(
+    join(__dirname, '../dist/webextension/i18n.js'),
     `const i18n = ${JSON.stringify(i18n())}`,
     err => {
       if (err) {
@@ -219,9 +219,9 @@ mkdirp(path.join(__dirname, '../dist/webextension')).then(err => {
     },
   );
 
-  extra.copy(
-    path.join(__dirname, '../node_modules/jquery/dist/jquery.min.js'),
-    path.join(__dirname, '../dist/webextension/vendor/jquery.min.js'),
+  copy(
+    join(__dirname, '../node_modules/jquery/dist/jquery.min.js'),
+    join(__dirname, '../dist/webextension/vendor/jquery.min.js'),
     err => {
       if (err) {
         console.error(err);
@@ -230,9 +230,9 @@ mkdirp(path.join(__dirname, '../dist/webextension')).then(err => {
     },
   );
 
-  extra.copy(
-    path.join(__dirname, '../src/_minimal/window.html'),
-    path.join(__dirname, '../dist/webextension/window.html'),
+  copy(
+    join(__dirname, '../src/_minimal/window.html'),
+    join(__dirname, '../dist/webextension/window.html'),
     err => {
       if (err) {
         console.error(err);
@@ -241,9 +241,9 @@ mkdirp(path.join(__dirname, '../dist/webextension')).then(err => {
     },
   );
 
-  extra.copy(
-    path.join(__dirname, '../src/_minimal/popup.html'),
-    path.join(__dirname, '../dist/webextension/popup.html'),
+  copy(
+    join(__dirname, '../src/_minimal/popup.html'),
+    join(__dirname, '../dist/webextension/popup.html'),
     err => {
       if (err) {
         console.error(err);
@@ -252,9 +252,9 @@ mkdirp(path.join(__dirname, '../dist/webextension')).then(err => {
     },
   );
 
-  extra.copy(
-    path.join(__dirname, '../src/_minimal/install.html'),
-    path.join(__dirname, '../dist/webextension/install.html'),
+  copy(
+    join(__dirname, '../src/_minimal/install.html'),
+    join(__dirname, '../dist/webextension/install.html'),
     err => {
       if (err) {
         console.error(err);
@@ -263,9 +263,9 @@ mkdirp(path.join(__dirname, '../dist/webextension')).then(err => {
     },
   );
 
-  extra.copy(
-    path.join(__dirname, '../src/_minimal/settings.html'),
-    path.join(__dirname, '../dist/webextension/settings.html'),
+  copy(
+    join(__dirname, '../src/_minimal/settings.html'),
+    join(__dirname, '../dist/webextension/settings.html'),
     err => {
       if (err) {
         console.error(err);
@@ -274,9 +274,9 @@ mkdirp(path.join(__dirname, '../dist/webextension')).then(err => {
     },
   );
 
-  extra.copy(
-    path.join(__dirname, '../assets/'),
-    path.join(__dirname, '../dist/webextension/'),
+  copy(
+    join(__dirname, '../assets/'),
+    join(__dirname, '../dist/webextension/'),
     err => {
       if (err) {
         console.error(err);
@@ -285,9 +285,9 @@ mkdirp(path.join(__dirname, '../dist/webextension')).then(err => {
     },
   );
 
-  extra.copy(
-    path.join(__dirname, '../src/declarative_net.json'),
-    path.join(__dirname, '../dist/webextension/declarative_net.json'),
+  copy(
+    join(__dirname, '../src/declarative_net.json'),
+    join(__dirname, '../dist/webextension/declarative_net.json'),
     err => {
       if (err) {
         console.error(err);

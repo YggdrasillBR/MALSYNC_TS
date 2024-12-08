@@ -1,19 +1,18 @@
-const path = require('path');
-const webpack = require('webpack');
-const wrapper = require('./utils/WrapperPlugin');
-const package = require('../package.json');
-const pageUrls = require('../src/pages-adult/pageUrls');
-const playerUrls = require('../src/pages-adult/playerUrls');
-const resourcesJson = require('./resourcesUserscript');
-const httpPermissionsJson = require('./httpPermissions.json');
-const { VueLoaderPlugin } = require('vue-loader');
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const TerserPlugin = require('terser-webpack-plugin');
-const i18n = require('./utils/i18n');
-const pagesUtils = require('./utils/pages');
-const generateMatchExcludes = pagesUtils.generateMatchExcludes;
-
-const { getKeys } = require('./utils/keys');
+import path from 'path';
+import { webpack } from 'webpack';
+import wrapper from './utils/WrapperPlugin';
+import package from '../package.json';
+import pageUrls from '../src/pages-adult/pageUrls';
+import playerUrls from '../src/pages-adult/playerUrls';
+import resourcesJson from './resourcesUserscript.json';
+import htpPermissionsJson from './httpPermissions.json';
+import { VueLoaderPlugin } from 'vue-loader';
+import { ForkTsCheckerWebpackPlugin } from 'fork-ts-checker-webpack-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
+import i18n from './utils/i18n';
+import pagesUtils from './utils/pages';
+import { generateMatchExcludes } from './utils/pages';
+import { getKeys } from './utils/keys';
 
 const generateResources = () => {
   const resources = [];
