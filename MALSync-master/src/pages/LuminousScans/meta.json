@@ -1,0 +1,10 @@
+{
+  "search": "https://luminous-scans.com/?s={searchtermPlus}",
+  "urls": {
+    "match": [
+      "*://luminousscans.com/*",
+      "*://luminousscans.gg/*",
+      "*://luminous-scans.com/*"
+    ]
+  }
+}

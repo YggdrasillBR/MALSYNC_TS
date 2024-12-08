@@ -1,0 +1,6 @@
+{
+    "search": "https://animeflix.gg/search/{searchterm}",
+    "urls": {
+      "match": ["*://animeflix.gg/*", "*://animeflix.li/*"]
+    }
+  }
