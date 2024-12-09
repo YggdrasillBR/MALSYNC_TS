@@ -1,13 +1,13 @@
-const { expect } = require('chai');
-const puppeteer = require('puppeteer');
-const { PuppeteerBlocker } = require('@cliqz/adblocker-puppeteer');
-const path = require('path');
+import { expect } from 'chai';
+import { launch } from 'puppeteer';
+import { PuppeteerBlocker } from '@cliqz/adblocker-puppeteer';
+import { join } from 'path';
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
-const fs = require('fs');
-const dir = require('node-dir');
+import { readFileSync, existsSync, mkdirSync, writeFileSync, readFile, writeFile } from 'fs';
+import { readFiles } from 'node-dir';
 
-const script = fs.readFileSync(`${__dirname}/../dist/testCode.js`, 'utf8');
+const script = readFileSync(`${__dirname}/../dist/testCode.js`, 'utf8');
 
 const testsArray = [];
 let changedFiles = [];
@@ -39,7 +39,7 @@ if (process.env.CI && !changedFiles.length) mode.quiet = true;
 async function getBrowser() {
   if (browser) return browser;
 
-  const tempBrowser = await puppeteer.launch({ headless: headless ? 'new' : false, args: ['--disable-web-security'] });
+  const tempBrowser = await launch({ headless: headless ? 'new' : false, args: ['--disable-web-security'] });
   browser = tempBrowser;
 
   return tempBrowser;
@@ -170,10 +170,10 @@ async function PreparePage(block, page, url, testPage) {
   let name = safeFileName(urlObj.pathname + urlObj.search + urlObj.hash);
 
   checkIfFolderExists(block, name);
-  const pagePath = path.join(__dirname, '../dist/headless/clear/', block, name);
-  const filePath = path.join(pagePath, 'index.html');
+  const pagePath = join(__dirname, '../dist/headless/clear/', block, name);
+  const filePath = join(pagePath, 'index.html');
 
-  if (fs.existsSync(filePath)) {
+  if (existsSync(filePath)) {
     log(block, 'Cached', 2);
 
     await page.setRequestInterception(true);
@@ -183,19 +183,19 @@ async function PreparePage(block, page, url, testPage) {
         if (request.headers()['x-malsync-test']) {
           const requestMessage = JSON.parse(request.headers()['x-malsync-test']);
           let requestName = getRequestName(requestMessage);
-          requestPath = path.join(pagePath, 'requests', requestName, 'data.json');
-          if (!fs.existsSync(requestPath)) {
+          requestPath = join(pagePath, 'requests', requestName, 'data.json');
+          if (!existsSync(requestPath)) {
             return request.abort();
           }
-          const content = fs.readFileSync(requestPath, 'utf8');
+          const content = readFileSync(requestPath, 'utf8');
           return request.respond({ status: 200, body: content });
         } else if (request.url() === url || request.url() === url.replace(/#.*/, '')) {
-          const content = fs.readFileSync(filePath, 'utf8');
+          const content = readFileSync(filePath, 'utf8');
           return request.respond({ status: 200, body: content, contentType: 'text/html' });
         } else if (request.resourceType() === 'image') {
           return request.respond({
             status: 200,
-            body: fs.readFileSync(path.join(__dirname, '../../assets/icons/icon128.png')),
+            body: readFileSync(join(__dirname, '../../assets/icons/icon128.png')),
             contentType: 'image/png'
           });
         } else {
@@ -230,14 +230,14 @@ async function PreparePage(block, page, url, testPage) {
 
         requestData[requestName] = data;
 
-        const requestFolder = path.join(pagePath, 'requests');
-        if (!fs.existsSync(requestFolder)) {
-          fs.mkdirSync(requestFolder);
+        const requestFolder = join(pagePath, 'requests');
+        if (!existsSync(requestFolder)) {
+          mkdirSync(requestFolder);
         }
 
-        const requestPath = path.join(pagePath, 'requests', requestName);
-        if (!fs.existsSync(requestPath)) {
-          fs.mkdirSync(requestPath);
+        const requestPath = join(pagePath, 'requests', requestName);
+        if (!existsSync(requestPath)) {
+          mkdirSync(requestPath);
         }
       }
     });
@@ -291,34 +291,34 @@ async function PreparePage(block, page, url, testPage) {
     return async () => {
       // Wait for requests to finish
       await new Promise(resolve => setTimeout(resolve, 5000));
-      fs.writeFileSync(filePath, content);
+      writeFileSync(filePath, content);
       for (const key in requestData) {
-        fs.writeFileSync(path.join(pagePath, 'requests', key, 'data.json'), requestData[key]);
+        writeFileSync(join(pagePath, 'requests', key, 'data.json'), requestData[key]);
       }
     }
   }
 }
 
 function checkIfFolderExists(block, name) {
-  const root = path.join(__dirname, '../dist/headless/');
+  const root = join(__dirname, '../dist/headless/');
 
-  if (!fs.existsSync(root)) {
-    fs.mkdirSync(root);
+  if (!existsSync(root)) {
+    mkdirSync(root);
   }
 
-  const clearPath = path.join(root, 'clear');
-  if (!fs.existsSync(clearPath)) {
-    fs.mkdirSync(clearPath);
+  const clearPath = join(root, 'clear');
+  if (!existsSync(clearPath)) {
+    mkdirSync(clearPath);
   }
 
-  const folderPath = path.join(clearPath, block);
-  if (!fs.existsSync(folderPath)) {
-    fs.mkdirSync(folderPath);
+  const folderPath = join(clearPath, block);
+  if (!existsSync(folderPath)) {
+    mkdirSync(folderPath);
   }
 
-  const filePath = path.join(folderPath, name);
-  if (!fs.existsSync(filePath)) {
-    fs.mkdirSync(filePath);
+  const filePath = join(folderPath, name);
+  if (!existsSync(filePath)) {
+    mkdirSync(filePath);
   }
 }
 
@@ -330,12 +330,12 @@ async function singleCase(block, test, page, testPage, retry = 0) {
 
   await page
     .addScriptTag({
-      content: fs.readFileSync(`./node_modules/jquery/dist/jquery.min.js`, 'utf8'),
+      content: readFileSync(`./node_modules/jquery/dist/jquery.min.js`, 'utf8'),
     })
     .then(() => {
       return testJquery();
     }).catch(async () => {
-      await page.evaluate(fs.readFileSync(`./node_modules/jquery/dist/jquery.min.js`, 'utf8'));
+      await page.evaluate(readFileSync(`./node_modules/jquery/dist/jquery.min.js`, 'utf8'));
       await testJquery();
     });
 
@@ -498,7 +498,7 @@ async function openPage(b) {
 
 async function initTestsArray() {
   new Promise((resolve, reject) => {
-    dir.readFiles(
+    readFiles(
       `${__dirname}/../../src/`,
       {
         match: /^tests.json$/,
@@ -549,13 +549,13 @@ async function initTestsArray() {
 }
 
 async function resetOnline(path) {
-  fs.readFile(path, 'utf8', function(err, data) {
+  readFile(path, 'utf8', function(err, data) {
     if (err) {
       return console.log(err);
     }
     const result = data.replace(/"offline" *: *true *,/g, `"offline": false,`);
 
-    fs.writeFile(path, result, 'utf8', function(err) {
+    writeFile(path, result, 'utf8', function(err) {
       if (err) return console.log(err);
     });
   });

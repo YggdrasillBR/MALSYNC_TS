@@ -2,7 +2,7 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
-import esX from 'eslint-plugin-es-x';
+//import esX from 'eslint-plugin-es';//
 // @ts-ignore
 import cspellConfigs from '@cspell/eslint-plugin/configs';
 import stylistic from '@stylistic/eslint-plugin';
