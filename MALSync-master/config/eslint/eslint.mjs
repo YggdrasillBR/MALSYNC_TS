@@ -3,22 +3,22 @@ import { merge } from './utils/merge.mjs';
 /** @satisfies {{ [scope: string]: () => Promise<{ default: import('eslint').Linter.FlatConfig }> }} */
 const configMap = {
   async node() {
-    return import('./configs/node.mjs');
+    return import('./configs/node.js');
   },
   async dom() {
-    return import('./configs/dom.mjs');
+    return import('./configs/dom.js');
   },
   async config() {
-    return import('./configs/config.mjs');
+    return import('./configs/config.js');
   },
   async typescript() {
-    return import('./configs/typescript.mjs');
+    return import('./configs/typescript.js');
   },
   'typescript-dom': async () => {
-    return import('./configs/typescript-dom.mjs');
+    return import('./configs/typescript-dom.js');
   },
   'vue-typescript': async () => {
-    return import('./configs/vue-typescript.mjs');
+    return import('./configs/vue-typescript.js');
   },
 };
 
